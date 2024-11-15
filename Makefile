@@ -1,10 +1,9 @@
-
 # Makefile generado automáticamente para múltiples archivos
 
 CXX = g++
 CXXFLAGS = -std=c++14 -Wall -g
 LDFLAGS =
-TARGET = programa  # Cambia el nombre del ejecutable según lo necesites
+TARGET = ./  # Cambia el nombre del ejecutable según lo necesites
 
 # Todos los archivos .cc en el directorio actual
 SRC = $(wildcard *.cpp)
@@ -31,7 +30,7 @@ tar:
 	    echo "Error: Debes especificar un directorio usando 'make tar DIR=<directorio>'"; \
 	    exit 1; \
 	fi
-	tar -czvf "$(DIR).tgz" "$(DIR)"
+	tar --exclude="$(DIR).tgz" -czvf "$(DIR).tgz" "$(DIR)"
 
 # Eliminación del archivo comprimido
 tar_clean:
@@ -50,4 +49,9 @@ git:
 	git add .
 	git commit -m "$(m)"
 	git push
+
+# Regla para formatear todos los archivos según la guía de estilo de Google
+format:
+	@echo "Formateando archivos según la guía de estilo de Google..."
+	clang-format -i --style=Google *.cpp *.h
 

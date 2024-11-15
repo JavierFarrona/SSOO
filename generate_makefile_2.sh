@@ -13,13 +13,12 @@ RUTA_DESTINO="$1"
 mkdir -p "$RUTA_DESTINO"
 
 # Contenido del Makefile actualizado
-MAKEFILE_CONTENT="
-# Makefile generado automáticamente para múltiples archivos
+MAKEFILE_CONTENT="# Makefile generado automáticamente para múltiples archivos
 
 CXX = g++
 CXXFLAGS = -std=c++14 -Wall -g
 LDFLAGS =
-TARGET = programa  # Cambia el nombre del ejecutable según lo necesites
+TARGET = "$RUTA_DESTINO"  # Cambia el nombre del ejecutable según lo necesites
 
 # Todos los archivos .cc en el directorio actual
 SRC = \$(wildcard *.cpp)
