@@ -13,31 +13,54 @@ RUTA_DESTINO="$1"
 mkdir -p "$RUTA_DESTINO"
 
 # Contenido del Makefile actualizado
-MAKEFILE_CONTENT="# Makefile generado automáticamente para múltiples archivos
+MAKEFILE_CONTENT="# Makefile generado automáticamente con soporte para archivos objeto en /trash
 
 CXX = g++
-CXXFLAGS = -std=c++14 -Wall -g
+CXXFLAGS = -std=c++14 -Wall -g -Ilib
 LDFLAGS =
-TARGET = "$RUTA_DESTINO"  # Cambia el nombre del ejecutable según lo necesites
+TARGET = programa # Cambia el nombre del ejecutable según lo necesites
 
-# Todos los archivos .cc en el directorio actual
-SRC = \$(wildcard *.cpp)
-OBJ = \$(SRC:.cpp=.o)
+# Carpetas
+SRC_DIR = src
+LIB_DIR = lib
+OBJ_DIR = trash
 
-# Compilación completa del proyecto
+# Crear carpeta para los archivos objeto si no existe
+\$(shell mkdir -p \$(OBJ_DIR))
+
+# Archivos fuente y objetos
+SRC = \$(wildcard \$(SRC_DIR)/*.cpp)
+LIB = \$(wildcard \$(LIB_DIR)/*.cpp)
+OBJ = \$(patsubst \$(SRC_DIR)/%.cpp,\$(OBJ_DIR)/%.o,\$(SRC)) \\
+      \$(patsubst \$(LIB_DIR)/%.cpp,\$(OBJ_DIR)/%.o,\$(LIB))
+
+# Compilación del proyecto
 all: \$(TARGET)
 
 \$(TARGET): \$(OBJ)
-	\$(CXX) -o \$(TARGET) \$(OBJ) \$(LDFLAGS)
+	\$(CXX) -o \$@ \$^ \$(LDFLAGS)
 
-# Regla para compilar cada archivo .cc a un .o
-%.o: %.cc
+# Reglas para compilar cada archivo fuente a objeto
+\$(OBJ_DIR)/%.o: \$(SRC_DIR)/%.cpp
+	\$(CXX) \$(CXXFLAGS) -c \$< -o \$@
+
+\$(OBJ_DIR)/%.o: \$(LIB_DIR)/%.cpp
 	\$(CXX) \$(CXXFLAGS) -c \$< -o \$@
 
 # Limpieza de archivos generados
 clean:
-	rm -f \$(OBJ) \$(TARGET)
-	find . -name '*~' -exec rm {} \\;
+	rm -rf \$(OBJ_DIR) \$(TARGET)
+
+# Formateo de archivos según la guía de estilo de Google
+format:
+	@files=\$$(find \$(SRC_DIR) \$(LIB_DIR) -type f \\( -name '*.cpp' -o -name '*.h' \\)); \\
+	if [ -n \"\$\$files\" ]; then \\
+	    echo \"Formateando los siguientes archivos:\"; \\
+	    echo \"\$\$files\"; \\
+	    clang-format -i --style=Google \$\$files; \\
+	else \\
+	    echo \"No hay archivos para formatear en \$(SRC_DIR) o \$(LIB_DIR).\"; \\
+	fi
 
 # Creación de un archivo comprimido de un directorio específico
 tar:
@@ -64,11 +87,6 @@ git:
 	git add .
 	git commit -m \"\$(m)\"
 	git push
-
-# Regla para formatear todos los archivos según la guía de estilo de Google
-format:
-	@echo \"Formateando archivos según la guía de estilo de Google...\"
-	clang-format -i --style=Google *.cpp *.h
 "
 
 # Guarda el Makefile en la ruta destino
